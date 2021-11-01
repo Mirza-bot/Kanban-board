@@ -1,16 +1,25 @@
 <template>
   <div>
     <the-header></the-header>
-    <the-board></the-board>
+    <pop-up-window v-show="isCreatingTask"></pop-up-window>
+    <the-board ></the-board>
   </div>
 </template>
 
 <script>
 import TheHeader from "./components/layout/TheHeader.vue";
 import TheBoard from "./components/layout/TheBoard.vue";
+import { computed } from "@vue/reactivity";
+import { useStore } from "vuex";
 export default {
   components: { TheHeader, TheBoard },
-  setup() {},
+  setup() {
+    const store = useStore()
+
+    return {
+      isCreatingTask: computed(() => store.getters.isCreatingTask)
+    }
+  },
 };
 </script>
 

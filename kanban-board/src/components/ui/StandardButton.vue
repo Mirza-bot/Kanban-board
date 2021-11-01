@@ -1,44 +1,65 @@
 <template>
-        <button :class="mode">
-            <slot></slot>
-        </button>
+  <button :class="mode">
+    <slot></slot>
+  </button>
 </template>
 
 <script>
 export default {
-    props: {
-        mode: {
-            type: String,
-            required: false,
-            default: null
-        }
-    }
-}
+  props: {
+    mode: {
+      type: String,
+      required: false,
+      default: null,
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 button {
-    font-size: 1.5rem;
-    padding: 10px;
-    text-shadow: -3px 2px 3px black;
-    border: 1px solid;
-    border-radius: 5px;
+  font-size: 1.5rem;
+  padding: 10px;
+  text-shadow: -3px 2px 3px black;
+  border: 1px solid;
+  border-radius: 5px;
+  opacity: 0.9;
+}
+
+button:hover {
+  transform: scale(1.02);
+  opacity: 1;
+}
+
+button:active {
+    transform: scale(0.99);
+    border-style: inset;
 }
 
 .style-delete {
-    background-color: rgb(179, 11, 11);
-    color: white;
-}
-
-.style-edit {
-    background-color: rgb(0, 179, 74);
-    color: white;
+  background-color: rgb(179, 11, 11);
+  color: white;
 }
 
 .style-create {
-    background-color: rgb(202, 202, 15);
+  background-color: rgb(0, 179, 74);
+  color: white;
+}
+
+.style-edit {
+  background-color: rgb(202, 202, 15);
+  color: white;
+}
+
+.style-accept {
+    background-color: rgb(14, 126, 190);
+    margin: 1rem;
     color: white;
 }
 
+.style-cancle {
+    background-color: rgb(11, 80, 121);
+    margin: 1rem;
+    color: white;
+}
 </style>
