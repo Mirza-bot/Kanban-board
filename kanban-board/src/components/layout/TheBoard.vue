@@ -2,21 +2,33 @@
   <div class="board">
     <div class="board_part todo">
       <h2>Todo</h2>
-      <standard-card v-for="task in todoTasks" :key="task.id">
+      <standard-card
+        :mode="modeSwitch"
+        v-for="task in todoTasks"
+        :key="task.id"
+      >
         <template v-slot:header>{{ task.title }}</template>
         <template v-slot:description>{{ task.description }}</template>
       </standard-card>
     </div>
     <div class="board_part in-progress">
       <h2>In Progress</h2>
-      <standard-card v-for="task in inProgressTasks" :key="task.id">
+      <standard-card
+        :mode="modeSwitch"
+        v-for="task in inProgressTasks"
+        :key="task.id"
+      >
         <template v-slot:header>{{ task.title }}</template>
         <template v-slot:description>{{ task.description }}</template>
       </standard-card>
     </div>
     <div class="board_part done">
       <h2>Done</h2>
-      <standard-card v-for="task in doneTasks" :key="task.id">
+      <standard-card
+        :mode="modeSwitch"
+        v-for="task in doneTasks"
+        :key="task.id"
+      >
         <template v-slot:header>{{ task.title }}</template>
         <template v-slot:description>{{ task.description }}</template>
       </standard-card>
@@ -34,8 +46,22 @@ export default {
       return this.$store.getters.getInProgressTasks;
     },
     doneTasks() {
-        return this.$store.getters.getDoneTasks
-    }
+      return this.$store.getters.getDoneTasks;
+    },
+    modeSwitch() {
+      if (
+        this.$store.getters.isDeletingTask === true &&
+        this.$store.getters.isEditingTask === false
+      ) {
+        return "delete-style";
+      }
+      else if (
+        this.$store.getters.isEditingTask === true &&
+        this.$store.getters.isDeletingTask === false
+      ) {
+        return "edit-style";
+      } else return "default-style";
+    },
   },
 };
 </script>
@@ -58,5 +84,12 @@ export default {
   text-align: center;
   color: white;
   text-shadow: -3px 2px 3px black;
+}
+
+h2 {
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 </style>

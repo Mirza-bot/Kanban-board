@@ -41,7 +41,7 @@
         />
       </li>
     </ul>
-    <standard-button mode="style-accept" @click="setTaskData"
+    <standard-button mode="style-accept" @click="setTaskData(task.taskTitle, task.taskDescription, task.deadLine)"
       >Done</standard-button
     >
     <standard-button mode="style-cancle" @click="closeTaskCreation">Cancle</standard-button>
@@ -61,18 +61,19 @@ export default {
     };
   },
   methods: {
-    setTaskData() {
-      if (this.task.taskTitle !== "") {
+    setTaskData(title, description, deadLine) {
+      if (title !== "") {
         const newTask = {
-          title: this.task.taskTitle,
-          description: this.task.taskDescription,
-          deadLine: this.task.deadLine,
+          title: title,
+          description: description,
+          deadLine: deadLine,
         };
         this.$store.dispatch("setNewTask", newTask);
+        this.$store.commit('creatingSwitch');
       } else this.noTitle = true;
     },
     closeTaskCreation() {
-        this.$store.commit("isCreatingSwitch", false)
+        this.$store.commit("creatingSwitch", false)
         this.task.taskTitle = ""
         this.task.taskDescription = ""
         this.task.deadLine = ""

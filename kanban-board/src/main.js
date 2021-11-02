@@ -17,8 +17,7 @@ const store = createStore({
         {
           id: 4,
           title: "Learn React",
-          description:
-            "Hang in there and learn React properly dfsfgsdgs fsdg sdgsd gsd gsdg sdgsdgsdgsd sdgsdgs dsg sdg sdgs dgsd sdgdgsgsdgsdgsgdsdg sdgsdgsd dg sdgsdggsdgsdg!",
+          description: "Hang in there and learn React properly!",
         },
       ],
       inProgress: [
@@ -38,7 +37,9 @@ const store = createStore({
       // global switches for turning global UI-functions on and off
       uiSwitches: {
         creatingTask: false,
-        draggableTasks: true
+        editingTask: false,
+        deletingTask: false,
+        draggableTasks: true,
       },
     };
   },
@@ -54,6 +55,12 @@ const store = createStore({
     },
     isCreatingTask(state) {
       return state.uiSwitches.creatingTask;
+    },
+    isEditingTask(state) {
+      return state.uiSwitches.editingTask;
+    },
+    isDeletingTask(state) {
+      return state.uiSwitches.deletingTask;
     },
   },
   actions: {
@@ -72,9 +79,17 @@ const store = createStore({
     saveNewTask(state, payload) {
       state.todo.push(payload);
     },
-    isCreatingSwitch(state) {
-        state.uiSwitches.creatingTask = !state.uiSwitches.creatingTask
-    }
+    creatingSwitch(state) {
+      state.uiSwitches.creatingTask = !state.uiSwitches.creatingTask;
+    },
+    editingSwitch(state) {
+      state.uiSwitches.deletingTask = false;
+      state.uiSwitches.editingTask = !state.uiSwitches.editingTask;
+    },
+    deletingSwitch(state) {
+      state.uiSwitches.editingTask = false;
+      state.uiSwitches.deletingTask = !state.uiSwitches.deletingTask;
+    },
   },
 });
 
