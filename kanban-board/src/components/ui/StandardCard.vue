@@ -4,6 +4,9 @@
       <slot name="header"></slot>
     </header>
     <p><slot name="description"></slot></p>
+    <span v-show="false">
+      <slot name="taskId"></slot>
+    </span>
   </div>
 </template>
 

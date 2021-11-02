@@ -6,9 +6,11 @@
         :mode="modeSwitch"
         v-for="task in todoTasks"
         :key="task.id"
+        @click="targetTask($event)"
       >
         <template v-slot:header>{{ task.title }}</template>
         <template v-slot:description>{{ task.description }}</template>
+        <template v-slot:taskId> {{ task.id }} </template>
       </standard-card>
     </div>
     <div class="board_part in-progress">
@@ -17,9 +19,11 @@
         :mode="modeSwitch"
         v-for="task in inProgressTasks"
         :key="task.id"
+        @click="targetTask($event)"
       >
         <template v-slot:header>{{ task.title }}</template>
         <template v-slot:description>{{ task.description }}</template>
+        <template v-slot:taskId> {{ task.id }} </template>
       </standard-card>
     </div>
     <div class="board_part done">
@@ -28,9 +32,11 @@
         :mode="modeSwitch"
         v-for="task in doneTasks"
         :key="task.id"
+        @click="targetTask($event)"
       >
         <template v-slot:header>{{ task.title }}</template>
         <template v-slot:description>{{ task.description }}</template>
+        <template v-slot:taskId> {{ task.id }} </template>
       </standard-card>
     </div>
   </div>
@@ -54,13 +60,22 @@ export default {
         this.$store.getters.isEditingTask === false
       ) {
         return "delete-style";
-      }
-      else if (
+      } else if (
         this.$store.getters.isEditingTask === true &&
         this.$store.getters.isDeletingTask === false
       ) {
         return "edit-style";
       } else return "default-style";
+    },
+  },
+  methods: {
+    targetTask(event) {
+      const cardId = event.currentTarget.lastChild.innerText;
+      if (this.$store.getters.isDeletingTask === true) {
+        this.$store.commit("deleteTask", cardId);
+      } else if (this.$store.getters.isEditingTask === true) {
+        this.$store.commit("editTask", cardId)
+      } else return
     },
   },
 };

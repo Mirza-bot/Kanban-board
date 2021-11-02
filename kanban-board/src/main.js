@@ -66,7 +66,7 @@ const store = createStore({
   actions: {
     setNewTask(context, data) {
       const taskData = {
-        taskId: new Date().toISOString(),
+        id: new Date().toISOString(),
         title: data.title,
         description: data.description,
         deadLine: data.deadLine,
@@ -90,6 +90,23 @@ const store = createStore({
       state.uiSwitches.editingTask = false;
       state.uiSwitches.deletingTask = !state.uiSwitches.deletingTask;
     },
+    deleteTask(state, payload) {
+      const newTodo = state.todo.filter(
+        (task) => task["id"].toString() !== payload
+      );
+      state.todo = newTodo;
+      const newProgress = state.inProgress.filter(
+        (task) => task["id"].toString() !== payload
+      );
+      state.inProgress = newProgress;
+      const newDone = state.done.filter(
+        (task) => task["id"].toString() !== payload
+      );
+      state.done = newDone;
+    },
+    editTask(state, payload) {
+        
+    }
   },
 });
 
