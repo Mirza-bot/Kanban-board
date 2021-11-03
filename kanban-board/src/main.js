@@ -13,11 +13,13 @@ const store = createStore({
           id: 1,
           title: "Learn Vue.js",
           description: "Hang in there and learn Vue properly!",
+          deadLine: "2020-12-01",
         },
         {
           id: 4,
           title: "Learn React",
           description: "Hang in there and learn React properly!",
+          deadLine: "2020-12-11",
         },
       ],
       inProgress: [
@@ -25,6 +27,7 @@ const store = createStore({
           id: 2,
           title: "Learn JavaScript",
           description: "Read Eloquent JavaScript!",
+          deadLine: "2020-12-21",
         },
       ],
       done: [
@@ -32,6 +35,7 @@ const store = createStore({
           id: 3,
           title: "Learn HTML and CSS!",
           description: "pretty obivous!",
+          deadLine: "2020-12-24",
         },
       ],
       // global switches for turning global UI-functions on and off
@@ -40,6 +44,13 @@ const store = createStore({
         editingTask: false,
         deletingTask: false,
         draggableTasks: true,
+      },
+      // temporary Store for the last edited Task
+      editedTask: {
+        id: null,
+        title: null,
+        description: null,
+        deadLine: null,
       },
     };
   },
@@ -53,6 +64,9 @@ const store = createStore({
     getDoneTasks(state) {
       return state.done;
     },
+    getEditedTask(state) {
+      return state.editedTask;
+    },
     isCreatingTask(state) {
       return state.uiSwitches.creatingTask;
     },
@@ -61,6 +75,9 @@ const store = createStore({
     },
     isDeletingTask(state) {
       return state.uiSwitches.deletingTask;
+    },
+    isDraggable(state) {
+      return state.uiSwitches.draggableTasks;
     },
   },
   actions: {
@@ -80,6 +97,7 @@ const store = createStore({
       state.todo.push(payload);
     },
     creatingSwitch(state) {
+      state.uiSwitches.editingTask = false;
       state.uiSwitches.creatingTask = !state.uiSwitches.creatingTask;
     },
     editingSwitch(state) {
@@ -105,8 +123,15 @@ const store = createStore({
       state.done = newDone;
     },
     editTask(state, payload) {
-        
-    }
+      state.todo.forEach((element) => {
+        if (element["id"].toString() === payload.id) {
+          state.uiSwitches.creatingTask = !state.uiSwitches.creatingTask;
+          const indexOfElement = state.todo.indexOf(element);
+          state.todo.splice(indexOfElement, 1);
+          state.editedTask = element;
+        }
+      });
+    },
   },
 });
 

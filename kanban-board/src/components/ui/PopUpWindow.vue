@@ -1,7 +1,8 @@
 <template>
-  <div>
+  <div @mousemove="toEditData">
     <header>
-      <h1>create a new task</h1>
+      <h1 v-if="modeSwitch">create a new task</h1>
+      <h1 v-else>edit this task</h1>
     </header>
     <ul>
       <li>
@@ -41,10 +42,17 @@
         />
       </li>
     </ul>
-    <standard-button mode="style-accept" @click="setTaskData(task.taskTitle, task.taskDescription, task.deadLine)"
+    <standard-button
+      mode="style-accept"
+      @click="setTaskData(task.taskTitle, task.taskDescription, task.deadLine)"
       >Done</standard-button
     >
-    <standard-button mode="style-cancle" @click="closeTaskCreation">Cancle</standard-button>
+    <standard-button
+      mode="style-cancle"
+      @click="closeTaskCreation"
+      v-show="modeSwitch"
+      >Cancle</standard-button
+    >
   </div>
 </template>
 
@@ -62,23 +70,44 @@ export default {
   },
   methods: {
     setTaskData(title, description, deadLine) {
-      if (title !== "") {
+      if (title !== "" && this.$store.getters.isCreatingTask === true) {
         const newTask = {
           title: title,
           description: description,
           deadLine: deadLine,
         };
         this.$store.dispatch("setNewTask", newTask);
-        this.$store.commit('creatingSwitch');
-      } else this.noTitle = true;
+        this.$store.commit("creatingSwitch");
+        this.task.taskTitle = "";
+        this.task.taskDescription = "";
+        this.task.deadLine = "";
+      } else if (title !== "" && this.$store.getters.isEditingTask === true) {
+        this.$store.commit("editingSwitch");
+      } else {
+        this.noTitle = true;
+      }
     },
     closeTaskCreation() {
-        this.$store.commit("creatingSwitch", false)
-        this.task.taskTitle = ""
-        this.task.taskDescription = ""
-        this.task.deadLine = ""
-        this.noTitle = false
-    }
+      if (this.$store.getters.isEditingTask === true) {
+        this.$store.commit("editingSwitch");
+      }
+      this.$store.commit("creatingSwitch");
+      this.task.taskTitle = "";
+      this.task.taskDescription = "";
+      this.task.deadLine = "";
+      this.noTitle = false;
+    },
+  },
+  computed: {
+    modeSwitch() {
+      if (this.$store.getters.isEditingTask === true) {
+        const retrievedTaskData = this.$store.getters.getEditedTask;
+        this.task.taskTitle = retrievedTaskData.title;
+        this.task.taskDescription = retrievedTaskData.description;
+        this.task.deadLine = retrievedTaskData.deadLine;
+        return false;
+      } else return true;
+    },
   },
 };
 </script>
@@ -97,6 +126,7 @@ div {
   opacity: 0.985;
   margin-left: auto;
   margin-right: auto;
+  margin-top: -3vh;
   left: 0;
   right: 0;
 }

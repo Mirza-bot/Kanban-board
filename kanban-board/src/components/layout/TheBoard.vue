@@ -7,9 +7,11 @@
         v-for="task in todoTasks"
         :key="task.id"
         @click="targetTask($event)"
+        :draggable="isDraggable"
       >
         <template v-slot:header>{{ task.title }}</template>
         <template v-slot:description>{{ task.description }}</template>
+        <template v-slot:deadline>{{ task.deadLine }}</template>
         <template v-slot:taskId> {{ task.id }} </template>
       </standard-card>
     </div>
@@ -20,9 +22,11 @@
         v-for="task in inProgressTasks"
         :key="task.id"
         @click="targetTask($event)"
+        :draggable="isDraggable"
       >
         <template v-slot:header>{{ task.title }}</template>
         <template v-slot:description>{{ task.description }}</template>
+        <template v-slot:deadline>{{ task.deadLine }}</template>
         <template v-slot:taskId> {{ task.id }} </template>
       </standard-card>
     </div>
@@ -33,9 +37,11 @@
         v-for="task in doneTasks"
         :key="task.id"
         @click="targetTask($event)"
+        :draggable="isDraggable"
       >
         <template v-slot:header>{{ task.title }}</template>
         <template v-slot:description>{{ task.description }}</template>
+        <template v-slot:deadline>{{ task.deadLine }}</template>
         <template v-slot:taskId> {{ task.id }} </template>
       </standard-card>
     </div>
@@ -54,6 +60,9 @@ export default {
     doneTasks() {
       return this.$store.getters.getDoneTasks;
     },
+    isDraggable() {
+      return this.$store.getters.isDraggable;
+    },
     modeSwitch() {
       if (
         this.$store.getters.isDeletingTask === true &&
@@ -70,12 +79,19 @@ export default {
   },
   methods: {
     targetTask(event) {
-      const cardId = event.currentTarget.lastChild.innerText;
       if (this.$store.getters.isDeletingTask === true) {
+        const cardId = event.currentTarget.lastChild.innerText;
         this.$store.commit("deleteTask", cardId);
       } else if (this.$store.getters.isEditingTask === true) {
-        this.$store.commit("editTask", cardId)
-      } else return
+        const cardData = {
+          id: event.currentTarget.lastChild.innerText,
+          title: event.currentTarget.firstChild.innerText,
+          description: event.currentTarget.firstChild.nextSibling.innerText,
+          deadLine:
+            event.currentTarget.firstChild.nextSibling.nextSibling.innerText,
+        };
+        this.$store.commit("editTask", cardData);
+      } else return;
     },
   },
 };

@@ -5,6 +5,9 @@
     </header>
     <p><slot name="description"></slot></p>
     <span v-show="false">
+      <slot name="deadline"></slot>
+    </span>
+    <span v-show="false">
       <slot name="taskId"></slot>
     </span>
   </div>

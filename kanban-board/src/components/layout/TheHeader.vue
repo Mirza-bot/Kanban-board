@@ -17,7 +17,7 @@
         >
       </li>
       <li class="float-left">
-        <h2>KANBANFUN</h2>
+        <h2>KANBAN</h2>
       </li>
     </ul>
   </header>

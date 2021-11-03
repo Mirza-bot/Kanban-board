@@ -2,7 +2,7 @@
   <div>
     <the-header></the-header>
     <pop-up-window v-show="isCreatingTask"></pop-up-window>
-    <the-board ></the-board>
+    <the-board></the-board>
   </div>
 </template>
 
@@ -14,11 +14,11 @@ import { useStore } from "vuex";
 export default {
   components: { TheHeader, TheBoard },
   setup() {
-    const store = useStore()
+    const store = useStore();
 
     return {
-      isCreatingTask: computed(() => store.getters.isCreatingTask)
-    }
+      isCreatingTask: computed(() => store.getters.isCreatingTask),
+    };
   },
 };
 </script>
