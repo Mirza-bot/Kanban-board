@@ -13,13 +13,13 @@ const store = createStore({
           id: 1,
           title: "Learn Vue.js",
           description: "Hang in there and learn Vue properly!",
-          deadLine: "2020-12-01",
+          deadLine: "13.04.2021",
         },
         {
           id: 4,
           title: "Learn React",
           description: "Hang in there and learn React properly!",
-          deadLine: "2020-12-11",
+          deadLine: "28.01.2020",
         },
       ],
       inProgress: [
@@ -27,7 +27,7 @@ const store = createStore({
           id: 2,
           title: "Learn JavaScript",
           description: "Read Eloquent JavaScript!",
-          deadLine: "2020-12-21",
+          deadLine: "19.09.2019",
         },
       ],
       done: [
@@ -35,7 +35,7 @@ const store = createStore({
           id: 3,
           title: "Learn HTML and CSS!",
           description: "pretty obivous!",
-          deadLine: "2020-12-24",
+          deadLine: "28.01.2020",
         },
       ],
       // global switches for turning global UI-functions on and off
@@ -82,11 +82,18 @@ const store = createStore({
   },
   actions: {
     setNewTask(context, data) {
+      let date = ""
+      if (data.deadLine === "") {
+          date = "No deadline"
+      } else {
+          date = data.deadLine.split("-");
+          date = date[2] + "." + date[1] + "." + date[0]
+      }
       const taskData = {
         id: new Date().toISOString(),
         title: data.title,
         description: data.description,
-        deadLine: data.deadLine,
+        deadLine: date
       };
 
       context.commit("saveNewTask", taskData);
@@ -128,6 +135,22 @@ const store = createStore({
           state.uiSwitches.creatingTask = !state.uiSwitches.creatingTask;
           const indexOfElement = state.todo.indexOf(element);
           state.todo.splice(indexOfElement, 1);
+          state.editedTask = element;
+        }
+      });
+      state.inProgress.forEach((element) => {
+        if (element["id"].toString() === payload.id) {
+          state.uiSwitches.creatingTask = !state.uiSwitches.creatingTask;
+          const indexOfElement = state.inProgress.indexOf(element);
+          state.inProgress.splice(indexOfElement, 1);
+          state.editedTask = element;
+        }
+      });
+      state.done.forEach((element) => {
+        if (element["id"].toString() === payload.id) {
+          state.uiSwitches.creatingTask = !state.uiSwitches.creatingTask;
+          const indexOfElement = state.done.indexOf(element);
+          state.done.splice(indexOfElement, 1);
           state.editedTask = element;
         }
       });

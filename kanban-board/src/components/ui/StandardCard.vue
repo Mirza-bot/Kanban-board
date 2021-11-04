@@ -4,7 +4,7 @@
       <slot name="header"></slot>
     </header>
     <p><slot name="description"></slot></p>
-    <span v-show="false">
+    <span>
       <slot name="deadline"></slot>
     </span>
     <span v-show="false">
@@ -32,7 +32,7 @@ div {
   border: 5px black;
   border-radius: 5px;
   width: 90%;
-  margin: auto;
+  margin: 10px auto 10px auto;
 }
 
 header {
@@ -41,11 +41,15 @@ header {
 }
 
 p {
-  padding: 0 10px 15px 10px;
   font-size: 0.8rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+span {
+  font-size: 0.8rem;
+  text-shadow: none;
 }
 
 .default-style {
