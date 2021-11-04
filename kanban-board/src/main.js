@@ -85,10 +85,10 @@ const store = createStore({
       let date = ""
       if (data.deadLine === "") {
           date = "No deadline"
-      } else {
+      } else if (data.deadLine.includes("-") === true) {
           date = data.deadLine.split("-");
           date = date[2] + "." + date[1] + "." + date[0]
-      }
+      } else date = data.deadLine
       const taskData = {
         id: new Date().toISOString(),
         title: data.title,
