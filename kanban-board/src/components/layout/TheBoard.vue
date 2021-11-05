@@ -1,6 +1,11 @@
 <template>
   <div class="board">
-    <div class="board_part todo">
+    <div
+      class="board_part todo"
+      @dragenter.prevent
+      @dragover.prevent
+      @drop="stopDrag($event, item)"
+    >
       <h2>Todo</h2>
       <standard-card
         :mode="modeSwitch"
@@ -8,6 +13,7 @@
         :key="task.id"
         @click="targetTask($event)"
         :draggable="isDraggable"
+        @dragstart="startDrag($event.currentTarget)"
       >
         <template v-slot:header>{{ task.title }}</template>
         <template v-slot:description>{{ task.description }}</template>
@@ -15,7 +21,12 @@
         <template v-slot:taskId> {{ task.id }} </template>
       </standard-card>
     </div>
-    <div class="board_part in-progress">
+    <div
+      class="board_part inProgress"
+      @dragenter.prevent
+      @dragover.prevent
+      @drop="stopDrag($event)"
+    >
       <h2>In Progress</h2>
       <standard-card
         :mode="modeSwitch"
@@ -23,6 +34,7 @@
         :key="task.id"
         @click="targetTask($event)"
         :draggable="isDraggable"
+        @dragstart="startDrag($event.currentTarget)"
       >
         <template v-slot:header>{{ task.title }}</template>
         <template v-slot:description>{{ task.description }}</template>
@@ -30,7 +42,12 @@
         <template v-slot:taskId> {{ task.id }} </template>
       </standard-card>
     </div>
-    <div class="board_part done">
+    <div
+      class="board_part done"
+      @dragenter.prevent
+      @dragover.prevent
+      @drop="stopDrag($event)"
+    >
       <h2>Done</h2>
       <standard-card
         :mode="modeSwitch"
@@ -38,6 +55,7 @@
         :key="task.id"
         @click="targetTask($event)"
         :draggable="isDraggable"
+        @dragstart="startDrag($event.currentTarget)"
       >
         <template v-slot:header>{{ task.title }}</template>
         <template v-slot:description>{{ task.description }}</template>
@@ -50,6 +68,16 @@
 
 <script>
 export default {
+  data() {
+    return {
+      dragged: {
+        id: null,
+        title: null,
+        description: null,
+        deadLine: null
+      }
+    }
+  },
   computed: {
     todoTasks() {
       return this.$store.getters.getTodoTasks;
@@ -93,6 +121,21 @@ export default {
         this.$store.commit("editTask", cardData);
       } else return;
     },
+    startDrag(card) {
+      const draggedCard = {
+        id: card.lastChild.innerText,
+        title: card.firstChild.innerText,
+        description: card.firstChild.nextSibling.innerText,
+        deadLine: card.firstChild.nextSibling.nextSibling.innerText,
+      };
+      this.dragged = draggedCard
+      this.$store.commit("dragged", draggedCard);
+    },
+    stopDrag(event) {
+      const targetList = event.srcElement.classList[1];
+      this.$store.commit("deleteTask", this.dragged.id);
+      this.$store.commit("dropped", targetList);
+    },
   },
 };
 </script>
@@ -115,6 +158,7 @@ export default {
   text-align: center;
   color: white;
   text-shadow: -3px 2px 3px black;
+  padding-bottom: 120px;
 }
 
 h2 {

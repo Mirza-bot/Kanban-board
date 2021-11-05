@@ -52,6 +52,12 @@ const store = createStore({
         description: null,
         deadLine: null,
       },
+      draggedTask: {
+          id: null,
+          title: null,
+          description: null,
+          deadLine: null
+      }
     };
   },
   getters: {
@@ -82,18 +88,18 @@ const store = createStore({
   },
   actions: {
     setNewTask(context, data) {
-      let date = ""
+      let date = "";
       if (data.deadLine === "") {
-          date = "No deadline"
+        date = "No deadline";
       } else if (data.deadLine.includes("-") === true) {
-          date = data.deadLine.split("-");
-          date = date[2] + "." + date[1] + "." + date[0]
-      } else date = data.deadLine
+        date = data.deadLine.split("-");
+        date = date[2] + "." + date[1] + "." + date[0];
+      } else date = data.deadLine;
       const taskData = {
         id: new Date().toISOString(),
         title: data.title,
         description: data.description,
-        deadLine: date
+        deadLine: date,
       };
 
       context.commit("saveNewTask", taskData);
@@ -155,6 +161,12 @@ const store = createStore({
         }
       });
     },
+    dragged(state, payload) {
+        state.draggedTask = payload
+    },
+    dropped(state, target, payload) {
+        state[target].push(state.draggedTask)
+    }
   },
 });
 
