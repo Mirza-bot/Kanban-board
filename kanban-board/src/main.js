@@ -43,7 +43,7 @@ const store = createStore({
         creatingTask: false,
         editingTask: false,
         deletingTask: false,
-        draggableTasks: true,
+        isDragging: false,
       },
       // temporary Store for the last edited Task
       editedTask: {
@@ -82,8 +82,8 @@ const store = createStore({
     isDeletingTask(state) {
       return state.uiSwitches.deletingTask;
     },
-    isDraggable(state) {
-      return state.uiSwitches.draggableTasks;
+    dragging(state) {
+      return state.uiSwitches.isDragging;
     },
   },
   actions: {
@@ -120,6 +120,9 @@ const store = createStore({
     deletingSwitch(state) {
       state.uiSwitches.editingTask = false;
       state.uiSwitches.deletingTask = !state.uiSwitches.deletingTask;
+    },
+    dragSwitch(state, payload) {
+        state.uiSwitches.isDragging = payload
     },
     deleteTask(state, payload) {
       const newTodo = state.todo.filter(
@@ -164,7 +167,7 @@ const store = createStore({
     dragged(state, payload) {
         state.draggedTask = payload
     },
-    dropped(state, target, payload) {
+    dropped(state, target) {
         state[target].push(state.draggedTask)
     }
   },

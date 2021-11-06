@@ -1,82 +1,114 @@
 <template>
   <div class="board">
-    <div
-      class="board_part todo"
-      @dragenter.prevent
-      @dragover.prevent
-      @drop="stopDrag($event, item)"
-    >
+    <div class="board_part todo">
       <h2>Todo</h2>
-      <standard-card
-        :mode="modeSwitch"
-        v-for="task in todoTasks"
-        :key="task.id"
-        @click="targetTask($event)"
-        :draggable="isDraggable"
-        @dragstart="startDrag($event.currentTarget)"
-      >
-        <template v-slot:header>{{ task.title }}</template>
-        <template v-slot:description>{{ task.description }}</template>
-        <template v-slot:deadline>{{ task.deadLine }}</template>
-        <template v-slot:taskId> {{ task.id }} </template>
-      </standard-card>
+      <transition-group name="card">
+        <standard-card
+          :mode="modeSwitch"
+          v-for="task in todoTasks"
+          :key="task.id"
+          @click="targetTask($event)"
+          :draggable="true"
+          @dragstart="startDrag($event.currentTarget), dragSwitch(true)"
+          @dragend="dragSwitch(false)"
+        >
+          <template v-slot:header>{{ task.title }}</template>
+          <template v-slot:description>{{ task.description }}</template>
+          <template v-slot:deadline>{{ task.deadLine }}</template>
+          <template v-slot:taskId> {{ task.id }} </template>
+        </standard-card>
+      </transition-group>
+      <transition name="card">
+        <standard-card
+          mode="drop-spot"
+          v-show="dragging"
+          id="todo"
+          @dragenter.prevent
+          @dragover.prevent
+          @drop="dropCard($event)"
+        >
+          <template v-slot:header><i class="fas fa-plus-circle"></i></template>
+        </standard-card>
+      </transition>
     </div>
-    <div
-      class="board_part inProgress"
-      @dragenter.prevent
-      @dragover.prevent
-      @drop="stopDrag($event)"
-    >
+    <div class="board_part">
       <h2>In Progress</h2>
-      <standard-card
-        :mode="modeSwitch"
-        v-for="task in inProgressTasks"
-        :key="task.id"
-        @click="targetTask($event)"
-        :draggable="isDraggable"
-        @dragstart="startDrag($event.currentTarget)"
-      >
-        <template v-slot:header>{{ task.title }}</template>
-        <template v-slot:description>{{ task.description }}</template>
-        <template v-slot:deadline>{{ task.deadLine }}</template>
-        <template v-slot:taskId> {{ task.id }} </template>
-      </standard-card>
+      <transition-group name="card">
+        <standard-card
+          :mode="modeSwitch"
+          v-for="task in inProgressTasks"
+          :key="task.id"
+          @click="targetTask($event)"
+          :draggable="true"
+          @dragstart="startDrag($event.currentTarget), dragSwitch(true)"
+          @dragend="dragSwitch(false)"
+        >
+          <template v-slot:header>{{ task.title }}</template>
+          <template v-slot:description>{{ task.description }}</template>
+          <template v-slot:deadline>{{ task.deadLine }}</template>
+          <template v-slot:taskId> {{ task.id }} </template>
+        </standard-card>
+      </transition-group>
+      <transition name="card">
+        <standard-card
+          mode="drop-spot"
+          v-show="dragging"
+          id="inProgress"
+          @dragenter.prevent
+          @dragover.prevent
+          @drop="dropCard($event)"
+        >
+          <template v-slot:header><i class="fas fa-plus-circle"></i></template>
+        </standard-card>
+      </transition>
     </div>
-    <div
-      class="board_part done"
-      @dragenter.prevent
-      @dragover.prevent
-      @drop="stopDrag($event)"
-    >
+    <div class="board_part">
       <h2>Done</h2>
-      <standard-card
-        :mode="modeSwitch"
-        v-for="task in doneTasks"
-        :key="task.id"
-        @click="targetTask($event)"
-        :draggable="isDraggable"
-        @dragstart="startDrag($event.currentTarget)"
-      >
-        <template v-slot:header>{{ task.title }}</template>
-        <template v-slot:description>{{ task.description }}</template>
-        <template v-slot:deadline>{{ task.deadLine }}</template>
-        <template v-slot:taskId> {{ task.id }} </template>
-      </standard-card>
+      <transition-group name="card">
+        <standard-card
+          :mode="modeSwitch"
+          v-for="task in doneTasks"
+          :key="task.id"
+          @click="targetTask($event)"
+          :draggable="true"
+          @dragstart="startDrag($event.currentTarget), dragSwitch(true)"
+          @dragend="dragSwitch(false)"
+        >
+          <template v-slot:header>{{ task.title }}</template>
+          <template v-slot:description>{{ task.description }}</template>
+          <template v-slot:deadline>{{ task.deadLine }}</template>
+          <template v-slot:taskId> {{ task.id }} </template>
+        </standard-card>
+      </transition-group>
+      <transition name="card">
+        <standard-card
+          mode="drop-spot"
+          id="done"
+          v-show="dragging"
+          @dragenter.prevent
+          @dragover.prevent
+          @drop="dropCard($event)"
+        >
+          <template v-slot:header><i class="fas fa-plus-circle"></i></template>
+        </standard-card>
+      </transition>
     </div>
   </div>
 </template>
 
 <script>
+import StandardCard from "../ui/StandardCard.vue";
 export default {
+  components: { StandardCard },
   data() {
     return {
       dragged: {
         id: null,
         title: null,
         description: null,
-        deadLine: null
-      }
-    }
+        deadLine: null,
+      },
+    };
   },
   computed: {
     todoTasks() {
@@ -87,9 +119,6 @@ export default {
     },
     doneTasks() {
       return this.$store.getters.getDoneTasks;
-    },
-    isDraggable() {
-      return this.$store.getters.isDraggable;
     },
     modeSwitch() {
       if (
@@ -103,6 +132,9 @@ export default {
       ) {
         return "edit-style";
       } else return "default-style";
+    },
+    dragging() {
+      return this.$store.getters.dragging;
     },
   },
   methods: {
@@ -128,13 +160,22 @@ export default {
         description: card.firstChild.nextSibling.innerText,
         deadLine: card.firstChild.nextSibling.nextSibling.innerText,
       };
-      this.dragged = draggedCard
+      this.dragged = draggedCard;
       this.$store.commit("dragged", draggedCard);
     },
-    stopDrag(event) {
-      const targetList = event.srcElement.classList[1];
-      this.$store.commit("deleteTask", this.dragged.id);
-      this.$store.commit("dropped", targetList);
+    dropCard(event) {
+      const targetList = event.currentTarget.id;
+      if (
+        targetList === "todo" ||
+        targetList === "inProgress" ||
+        targetList === "done"
+      ) {
+        this.$store.commit("deleteTask", this.dragged.id);
+        this.$store.commit("dropped", targetList);
+      }
+    },
+    dragSwitch(boolean) {
+      this.$store.commit("dragSwitch", boolean);
     },
   },
 };
@@ -148,6 +189,7 @@ export default {
   border-radius: 10px;
   padding: 10px;
   overflow: auto;
+  min-height: 80vh;
 }
 
 .board_part {
@@ -158,7 +200,6 @@ export default {
   text-align: center;
   color: white;
   text-shadow: -3px 2px 3px black;
-  padding-bottom: 120px;
 }
 
 h2 {
@@ -166,5 +207,42 @@ h2 {
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
+}
+
+.fas {
+  text-shadow: -2px 2px 2px black;
+  pointer-events: none;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+.card-enter-from {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.card-enter-active {
+  transition: all 0.1s ease-out;
+}
+
+.card-enter-to {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.card-leave-from {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.card-leave-active {
+  transition: all 0.1s ease-in;
+}
+
+.card-leave-to {
+  opacity: 0;
+  transform: scale(0.8);
 }
 </style>

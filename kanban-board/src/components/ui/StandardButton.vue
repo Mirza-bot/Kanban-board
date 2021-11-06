@@ -32,8 +32,8 @@ button:hover {
 }
 
 button:active {
-    transform: scale(0.99);
-    border-style: inset;
+  transform: scale(0.99);
+  border-style: inset;
 }
 
 .style-delete {
@@ -52,14 +52,14 @@ button:active {
 }
 
 .style-accept {
-    background-color: rgb(14, 126, 190);
-    margin: 1rem;
-    color: white;
+  background-color: rgb(14, 126, 190);
+  margin: 0 2rem 1rem 2rem;
+  color: white;
 }
 
 .style-cancle {
-    background-color: rgb(11, 80, 121);
-    margin: 1rem;
-    color: white;
+  background-color: rgb(11, 80, 121);
+  color: white;
+  margin: 0 2rem 1rem 2rem;
 }
 </style>

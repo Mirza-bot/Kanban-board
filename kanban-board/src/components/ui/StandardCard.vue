@@ -56,6 +56,10 @@ span {
   background-color: white;
 }
 
+.default-style:hover {
+  cursor: grab;
+}
+
 .delete-style {
   background-color: rgb(80, 6, 6);
   color: white;
@@ -90,5 +94,31 @@ span {
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
+}
+
+div.drop-spot {
+  box-sizing: border-box;
+  border: 2px solid rgb(19, 119, 177);
+  border-style: inset;
+  border-radius: 10px;
+  background: linear-gradient(
+    45deg,
+    rgb(1, 28, 44),
+    rgb(12, 99, 149) 45%,
+    rgb(9, 86, 131) 60%,
+    rgb(1, 41, 65) 98%
+  );
+  color: white;
+  text-shadow: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.drop-spot > header {
+  font-size: 2rem;
 }
 </style>

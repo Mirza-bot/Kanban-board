@@ -16,6 +16,11 @@
           >Create Task</standard-button
         >
       </li>
+      <li>
+        <standard-button mode="style-accept"
+          >Login</standard-button
+        >
+      </li>
       <li class="float-left">
         <h2>KANBAN</h2>
       </li>
