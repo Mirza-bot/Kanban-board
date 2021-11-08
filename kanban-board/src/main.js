@@ -116,8 +116,10 @@ const store = createStore({
       } else state.todo.push(payload);
     },
     creatingSwitch(state) {
-      state.uiSwitches.editingTask = false;
       state.uiSwitches.creatingTask = !state.uiSwitches.creatingTask;
+      setTimeout(() => {
+        state.uiSwitches.editingTask = false;
+      }, 200);
     },
     editingSwitch(state) {
       state.uiSwitches.deletingTask = false;

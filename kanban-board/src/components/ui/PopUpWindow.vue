@@ -87,11 +87,12 @@ export default {
         };
         this.$store.dispatch("setNewTask", newTask);
         this.$store.commit("creatingSwitch");
-        this.task.taskTitle = "";
-        this.task.taskDescription = "";
-        this.task.deadLine = "";
-      } else if (title !== "" && this.$store.getters.isEditingTask === true) {
-        this.$store.commit("editingSwitch");
+        setTimeout(() => {
+          this.task.taskTitle = "";
+          this.task.taskDescription = "";
+          this.task.deadLine = "";
+          this.task.boardPath = null;
+        }, 200);
       } else {
         this.noTitle = true;
       }
@@ -101,10 +102,12 @@ export default {
         this.$store.commit("editingSwitch");
       }
       this.$store.commit("creatingSwitch");
-      this.task.taskTitle = "";
-      this.task.taskDescription = "";
-      this.task.deadLine = "";
-      this.noTitle = false;
+      setTimeout(() => {
+        this.task.taskTitle = "";
+        this.task.taskDescription = "";
+        this.task.deadLine = "";
+        this.noTitle = false;
+      }, 200);
     },
   },
   computed: {
@@ -113,7 +116,10 @@ export default {
         const retrievedTaskData = this.$store.getters.getEditedTask;
         this.task.taskTitle = retrievedTaskData.title;
         this.task.taskDescription = retrievedTaskData.description;
-        if (retrievedTaskData.deadLine !== null) {
+        if (
+          retrievedTaskData.deadLine !== null &&
+          retrievedTaskData.deadLine !== "No deadline"
+        ) {
           const newDeadLine = retrievedTaskData.deadLine.split(".");
           retrievedTaskData.deadLine =
             newDeadLine[2] + "-" + newDeadLine[1] + "-" + newDeadLine[0];
