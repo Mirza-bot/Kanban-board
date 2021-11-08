@@ -51,13 +51,15 @@ const store = createStore({
         title: null,
         description: null,
         deadLine: null,
+        boardPath: null,
       },
+      // temporary Store for the last dragged Task
       draggedTask: {
-          id: null,
-          title: null,
-          description: null,
-          deadLine: null
-      }
+        id: null,
+        title: null,
+        description: null,
+        deadLine: null,
+      },
     };
   },
   getters: {
@@ -100,6 +102,7 @@ const store = createStore({
         title: data.title,
         description: data.description,
         deadLine: date,
+        boardPath: data.boardPath,
       };
 
       context.commit("saveNewTask", taskData);
@@ -107,7 +110,10 @@ const store = createStore({
   },
   mutations: {
     saveNewTask(state, payload) {
-      state.todo.push(payload);
+      const path = payload.boardPath;
+      if (path !== null) {
+        state[path].push(payload);
+      } else state.todo.push(payload);
     },
     creatingSwitch(state) {
       state.uiSwitches.editingTask = false;
@@ -122,7 +128,7 @@ const store = createStore({
       state.uiSwitches.deletingTask = !state.uiSwitches.deletingTask;
     },
     dragSwitch(state, payload) {
-        state.uiSwitches.isDragging = payload
+      state.uiSwitches.isDragging = payload;
     },
     deleteTask(state, payload) {
       const newTodo = state.todo.filter(
@@ -144,7 +150,7 @@ const store = createStore({
           state.uiSwitches.creatingTask = !state.uiSwitches.creatingTask;
           const indexOfElement = state.todo.indexOf(element);
           state.todo.splice(indexOfElement, 1);
-          state.editedTask = element;
+          state.editedTask = payload;
         }
       });
       state.inProgress.forEach((element) => {
@@ -152,7 +158,7 @@ const store = createStore({
           state.uiSwitches.creatingTask = !state.uiSwitches.creatingTask;
           const indexOfElement = state.inProgress.indexOf(element);
           state.inProgress.splice(indexOfElement, 1);
-          state.editedTask = element;
+          state.editedTask = payload;
         }
       });
       state.done.forEach((element) => {
@@ -160,16 +166,16 @@ const store = createStore({
           state.uiSwitches.creatingTask = !state.uiSwitches.creatingTask;
           const indexOfElement = state.done.indexOf(element);
           state.done.splice(indexOfElement, 1);
-          state.editedTask = element;
+          state.editedTask = payload;
         }
       });
     },
     dragged(state, payload) {
-        state.draggedTask = payload
+      state.draggedTask = payload;
     },
     dropped(state, target) {
-        state[target].push(state.draggedTask)
-    }
+      state[target].push(state.draggedTask);
+    },
   },
 });
 

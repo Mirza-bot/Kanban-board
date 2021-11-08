@@ -44,7 +44,14 @@
     </ul>
     <standard-button
       mode="style-accept"
-      @click="setTaskData(task.taskTitle, task.taskDescription, task.deadLine)"
+      @click="
+        setTaskData(
+          task.taskTitle,
+          task.taskDescription,
+          task.deadLine,
+          task.boardPath
+        )
+      "
       >Done</standard-button
     >
     <standard-button
@@ -64,17 +71,19 @@ export default {
         taskTitle: "",
         taskDescription: "",
         deadLine: "",
+        boardPath: null,
       },
       noTitle: false,
     };
   },
   methods: {
-    setTaskData(title, description, deadLine) {
+    setTaskData(title, description, deadLine, boardPath) {
       if (title !== "" && this.$store.getters.isCreatingTask === true) {
         const newTask = {
           title: title,
           description: description,
           deadLine: deadLine,
+          boardPath: boardPath,
         };
         this.$store.dispatch("setNewTask", newTask);
         this.$store.commit("creatingSwitch");
@@ -104,7 +113,13 @@ export default {
         const retrievedTaskData = this.$store.getters.getEditedTask;
         this.task.taskTitle = retrievedTaskData.title;
         this.task.taskDescription = retrievedTaskData.description;
+        if (retrievedTaskData.deadLine !== null) {
+          const newDeadLine = retrievedTaskData.deadLine.split(".");
+          retrievedTaskData.deadLine =
+            newDeadLine[2] + "-" + newDeadLine[1] + "-" + newDeadLine[0];
+        }
         this.task.deadLine = retrievedTaskData.deadLine;
+        this.task.boardPath = retrievedTaskData.boardPath;
         return false;
       } else return true;
     },

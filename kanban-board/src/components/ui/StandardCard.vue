@@ -64,6 +64,7 @@ span {
   background-color: rgb(80, 6, 6);
   color: white;
   text-shadow: 3px -1px 2px black;
+  border: 2px solid white;
 }
 
 .delete-style:hover {

@@ -31,7 +31,7 @@
         </standard-card>
       </transition>
     </div>
-    <div class="board_part">
+    <div class="board_part inProgress">
       <h2>In Progress</h2>
       <transition-group name="card">
         <standard-card
@@ -62,7 +62,7 @@
         </standard-card>
       </transition>
     </div>
-    <div class="board_part">
+    <div class="board_part done">
       <h2>Done</h2>
       <transition-group name="card">
         <standard-card
@@ -149,6 +149,7 @@ export default {
           description: event.currentTarget.firstChild.nextSibling.innerText,
           deadLine:
             event.currentTarget.firstChild.nextSibling.nextSibling.innerText,
+          boardPath: event.currentTarget.parentElement.classList[1],
         };
         this.$store.commit("editTask", cardData);
       } else return;
