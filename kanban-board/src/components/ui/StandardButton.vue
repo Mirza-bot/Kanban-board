@@ -23,6 +23,7 @@ button {
   text-shadow: -3px 2px 3px black;
   border: 1px solid;
   border-radius: 5px;
+  box-shadow: -5px 5px 5px black;
   opacity: 0.9;
 }
 

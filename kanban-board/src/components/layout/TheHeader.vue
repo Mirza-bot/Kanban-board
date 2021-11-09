@@ -17,9 +17,7 @@
         >
       </li>
       <li>
-        <standard-button mode="style-accept"
-          >Login</standard-button
-        >
+        <standard-button mode="style-accept" @click="toggleLoginWindow">Login</standard-button>
       </li>
       <li class="float-left">
         <h2>KANBAN</h2>
@@ -39,6 +37,9 @@ export default {
     },
     toggleDeleteSwitch() {
       this.$store.commit("deletingSwitch");
+    },
+    toggleLoginWindow() {
+      this.$store.commit("autenticatingSwitch")
     },
   },
 };

@@ -33,6 +33,7 @@ div {
   border-radius: 5px;
   width: 90%;
   margin: 10px auto 10px auto;
+  box-shadow: -5px 5px 5px black;
 }
 
 header {

@@ -4,6 +4,9 @@
     <transition name="popup">
       <pop-up-window v-show="isCreatingTask"></pop-up-window>
     </transition>
+    <transition name="popup">
+      <login-window v-show="isLoggingIn"></login-window>
+    </transition>
     <the-board :class="blurEffect()"></the-board>
   </div>
 </template>
@@ -11,21 +14,23 @@
 <script>
 import TheHeader from "./components/layout/TheHeader.vue";
 import TheBoard from "./components/layout/TheBoard.vue";
+import LoginWindow from "./components/ui/LoginWindow.vue";
 import { computed } from "@vue/reactivity";
 import { useStore } from "vuex";
 export default {
-  components: { TheHeader, TheBoard },
+  components: { TheHeader, TheBoard, LoginWindow },
   setup() {
     const store = useStore();
 
     function blurEffect() {
-      if (store.getters.isCreatingTask === true) {
+      if (store.getters.isCreatingTask === true || store.getters.isAuthenticating) {
         return "background-blur";
       } else return "default";
     }
 
     return {
       isCreatingTask: computed(() => store.getters.isCreatingTask),
+      isLoggingIn: computed(() => store.getters.isAuthenticating),
       blurEffect,
     };
   },
