@@ -7,7 +7,9 @@
     <transition name="popup">
       <login-window v-show="isLoggingIn"></login-window>
     </transition>
-    <the-board :class="blurEffect()"></the-board>
+    <error-message v-show="displayError"></error-message>
+    <loading-spinner v-if="isLoading"></loading-spinner>
+    <the-board :class="blurEffect()" v-else></the-board>
   </div>
 </template>
 
@@ -17,13 +19,15 @@ import TheBoard from "./components/layout/TheBoard.vue";
 import LoginWindow from "./components/ui/LoginWindow.vue";
 import { computed } from "@vue/reactivity";
 import { useStore } from "vuex";
+import LoadingSpinner from "./components/ui/LoadingSpinner.vue";
+import ErrorMessage from "./components/ui/ErrorMessage.vue";
 export default {
-  components: { TheHeader, TheBoard, LoginWindow },
+  components: { TheHeader, TheBoard, LoginWindow, LoadingSpinner, ErrorMessage },
   setup() {
     const store = useStore();
 
     function blurEffect() {
-      if (store.getters.isCreatingTask === true || store.getters.isAuthenticating) {
+      if (store.getters.isCreatingTask || store.getters.isAuthenticating || store.getters.errorOccurred) {
         return "background-blur";
       } else return "default";
     }
@@ -31,6 +35,8 @@ export default {
     return {
       isCreatingTask: computed(() => store.getters.isCreatingTask),
       isLoggingIn: computed(() => store.getters.isAuthenticating),
+      isLoading: computed(() => store.getters.isLoading),
+      displayError: computed(() => store.getters.errorOccurred),
       blurEffect,
     };
   },
@@ -79,7 +85,7 @@ div.default {
 }
 
 .popup-enter-active {
-  transition: all 0.2s ease-out;
+  transition: all 0.1s ease-out;
 }
 
 .popup-enter-to {
@@ -93,7 +99,7 @@ div.default {
 }
 
 .popup-leave-active {
-  transition: all 0.2s ease-in;
+  transition: all 0.1s ease-in;
 }
 
 .popup-leave-to {

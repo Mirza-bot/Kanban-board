@@ -140,7 +140,7 @@ div {
   background: linear-gradient(rgb(14, 126, 190), rgb(5, 91, 141) 70%);
   color: white;
   text-shadow: -3px 2px 3px black;
-  border: 5px outset silver;
+  border: 3px solid white;
   border-radius: 15px;
   position: absolute;
   z-index: 1;

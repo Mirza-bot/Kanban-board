@@ -4,10 +4,17 @@ import App from "./App.vue";
 import StandardButton from "./components/ui/StandardButton.vue";
 import StandardCard from "./components/ui/StandardCard.vue";
 import PopUpWindow from "./components/ui/PopUpWindow.vue";
+import LoadingSpinner from "./components/ui/LoadingSpinner.vue";
+import ErrorMessage from "./components/ui/ErrorMessage.vue";
 
 const store = createStore({
   state() {
     return {
+      userData: {
+        token: null,
+        id: null,
+        tokenExpiration: null,
+      },
       todo: [
         {
           id: 1,
@@ -17,7 +24,7 @@ const store = createStore({
         },
         {
           id: 4,
-          title: "Learn React",
+          title: "Drag Me!",
           description: "Hang in there and learn React properly!",
           deadLine: "28.01.2020",
         },
@@ -33,7 +40,7 @@ const store = createStore({
       done: [
         {
           id: 3,
-          title: "Learn HTML and CSS!",
+          title: "Drag Me!",
           description: "pretty obivous!",
           deadLine: "28.01.2020",
         },
@@ -45,6 +52,8 @@ const store = createStore({
         deletingTask: false,
         isDragging: false,
         authenticating: false,
+        isLoading: false,
+        errorOccurrence: false,
       },
       // temporary Store for the last edited Task
       editedTask: {
@@ -91,6 +100,12 @@ const store = createStore({
     isAuthenticating(state) {
       return state.uiSwitches.authenticating;
     },
+    isLoading(state) {
+      return state.uiSwitches.isLoading;
+    },
+    errorOccurred(state) {
+      return state.uiSwitches.errorOccurrence;
+    },
   },
   actions: {
     setNewTask(context, data) {
@@ -111,8 +126,70 @@ const store = createStore({
 
       context.commit("saveNewTask", taskData);
     },
+    async signup(context, payload) {
+      const response = await fetch(
+        "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAueLlzB1u8Od9Ra0Wms0OtxDjQiegUOU8",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            email: payload.email,
+            password: payload.password,
+            returnSecureToken: true,
+          }),
+        }
+      );
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        const error = new Error(response.message || "Failed to authenticate.");
+        context.commit("clearError", true);
+        throw error;
+      }
+      console.log(responseData);
+      context.commit("setUser", {
+        token: responseData.idToken,
+        userId: responseData.localId,
+        tokenExpiration: responseData.expiresIn,
+      });
+    },
+    async login(context, payload) {
+      const response = await fetch(
+        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAueLlzB1u8Od9Ra0Wms0OtxDjQiegUOU8",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            email: payload.email,
+            password: payload.password,
+            returnSecureToken: true,
+          }),
+        }
+      );
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        const error = new Error(response.message || "Failed to authenticate.");
+        context.commit("clearError", true);
+        throw error;
+      }
+      console.log(responseData);
+      context.commit("setUser", {
+        token: responseData.idToken,
+        userId: responseData.localId,
+        tokenExpiration: responseData.expiresIn,
+      });
+    },
   },
   mutations: {
+    setUser(state, payload) {
+      state.userData.token = payload.token;
+      state.userData.id = payload.userId;
+      state.userData.tokenExpiration = payload.tokenExpiration;
+      console.log(state.userData)
+    },
+    loading(state) {
+      state.uiSwitches.isLoading = !state.uiSwitches.isLoading;
+    },
     saveNewTask(state, payload) {
       const path = payload.boardPath;
       if (path !== null) {
@@ -189,6 +266,9 @@ const store = createStore({
     dropped(state, target) {
       state[target].push(state.draggedTask);
     },
+    clearError(state, payload) {
+      state.uiSwitches.errorOccurrence = payload;
+    },
   },
 });
 
@@ -199,5 +279,7 @@ app.use(store);
 app.component("standard-button", StandardButton);
 app.component("standard-card", StandardCard);
 app.component("pop-up-window", PopUpWindow);
+app.component("loading-spinner", LoadingSpinner);
+app.component("error-message", ErrorMessage);
 
 app.mount("#app");

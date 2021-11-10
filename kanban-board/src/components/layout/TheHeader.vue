@@ -17,7 +17,9 @@
         >
       </li>
       <li>
-        <standard-button mode="style-accept" @click="toggleLoginWindow">Login</standard-button>
+        <standard-button mode="style-accept" @click="toggleLoginWindow"
+          >Log in</standard-button
+        >
       </li>
       <li class="float-left">
         <h2>KANBAN</h2>
@@ -33,13 +35,15 @@ export default {
       this.$store.commit("creatingSwitch");
     },
     toggleEditSwitch() {
-      this.$store.commit("editingSwitch");
+      if (this.$store.getters.isCreatingTask !== true) {
+        this.$store.commit("editingSwitch");
+      }
     },
     toggleDeleteSwitch() {
       this.$store.commit("deletingSwitch");
     },
     toggleLoginWindow() {
-      this.$store.commit("autenticatingSwitch")
+      this.$store.commit("autenticatingSwitch");
     },
   },
 };

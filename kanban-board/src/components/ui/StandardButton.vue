@@ -25,6 +25,10 @@ button {
   border-radius: 5px;
   box-shadow: -5px 5px 5px black;
   opacity: 0.9;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 
 button:hover {
