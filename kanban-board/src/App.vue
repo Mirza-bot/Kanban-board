@@ -22,12 +22,22 @@ import { useStore } from "vuex";
 import LoadingSpinner from "./components/ui/LoadingSpinner.vue";
 import ErrorMessage from "./components/ui/ErrorMessage.vue";
 export default {
-  components: { TheHeader, TheBoard, LoginWindow, LoadingSpinner, ErrorMessage },
+  components: {
+    TheHeader,
+    TheBoard,
+    LoginWindow,
+    LoadingSpinner,
+    ErrorMessage,
+  },
   setup() {
     const store = useStore();
 
     function blurEffect() {
-      if (store.getters.isCreatingTask || store.getters.isAuthenticating || store.getters.errorOccurred) {
+      if (
+        store.getters.isCreatingTask ||
+        store.getters.isAuthenticating ||
+        store.getters.errorOccurred
+      ) {
         return "background-blur";
       } else return "default";
     }
@@ -39,6 +49,12 @@ export default {
       displayError: computed(() => store.getters.errorOccurred),
       blurEffect,
     };
+  },
+  async created() {
+    this.$store.dispatch("autoLogin");
+    this.$store.commit("loading");
+    await this.$store.dispatch("loadBoardData");
+    this.$store.commit("loading");
   },
 };
 </script>
@@ -66,13 +82,13 @@ div.default {
     filter: none;
   }
   to {
-    filter: grayscale(0.5) blur(10px)
+    filter: grayscale(0.5) blur(10px);
   }
 }
 
 @keyframes blur_off {
   from {
-    filter: grayscale(0.5) blur(10px)
+    filter: grayscale(0.5) blur(10px);
   }
   to {
     filter: none;

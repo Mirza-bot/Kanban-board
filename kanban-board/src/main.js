@@ -7,6 +7,8 @@ import PopUpWindow from "./components/ui/PopUpWindow.vue";
 import LoadingSpinner from "./components/ui/LoadingSpinner.vue";
 import ErrorMessage from "./components/ui/ErrorMessage.vue";
 
+let timer;
+
 const store = createStore({
   state() {
     return {
@@ -15,36 +17,7 @@ const store = createStore({
         id: null,
         tokenExpiration: null,
       },
-      todo: [
-        {
-          id: 1,
-          title: "Learn Vue.js",
-          description: "Hang in there and learn Vue properly!",
-          deadLine: "13.04.2021",
-        },
-        {
-          id: 4,
-          title: "Drag Me!",
-          description: "Hang in there and learn React properly!",
-          deadLine: "28.01.2020",
-        },
-      ],
-      inProgress: [
-        {
-          id: 2,
-          title: "Learn JavaScript",
-          description: "Read Eloquent JavaScript!",
-          deadLine: "19.09.2019",
-        },
-      ],
-      done: [
-        {
-          id: 3,
-          title: "Drag Me!",
-          description: "pretty obivous!",
-          deadLine: "28.01.2020",
-        },
-      ],
+      boardData: {},
       // global switches for turning global UI-functions on and off
       uiSwitches: {
         creatingTask: false,
@@ -73,14 +46,26 @@ const store = createStore({
     };
   },
   getters: {
+    getBoardData(state) {
+      return state.boardData;
+    },
+    getUserId(state) {
+      return state.userData.id;
+    },
+    getUserToken(state) {
+      return state.userData.token;
+    },
     getTodoTasks(state) {
-      return state.todo;
+      const todos = state.boardData.todo.slice(1);
+      return todos;
     },
     getInProgressTasks(state) {
-      return state.inProgress;
+      const progress = state.boardData.inProgress.slice(1);
+      return progress;
     },
     getDoneTasks(state) {
-      return state.done;
+      const dones = state.boardData.done.slice(1);
+      return dones;
     },
     getEditedTask(state) {
       return state.editedTask;
@@ -99,6 +84,11 @@ const store = createStore({
     },
     isAuthenticating(state) {
       return state.uiSwitches.authenticating;
+    },
+    isLoggedIn(state) {
+      if (state.userData.token !== null) {
+        return true;
+      } else return false;
     },
     isLoading(state) {
       return state.uiSwitches.isLoading;
@@ -146,12 +136,44 @@ const store = createStore({
         context.commit("clearError", true);
         throw error;
       }
-      console.log(responseData);
+
+      const expiresIn = +responseData.expiresIn * 1000;
+      const expirationDate = new Date().getTime() + expiresIn;
+
+      localStorage.setItem("token", responseData.idToken);
+      localStorage.setItem("userId", responseData.localId);
+      localStorage.setItem("tokenExpiration", expirationDate);
+
+      timer = setTimeout(() => {
+        context.dispatch("logOut");
+      }, expiresIn);
+
       context.commit("setUser", {
         token: responseData.idToken,
         userId: responseData.localId,
         tokenExpiration: responseData.expiresIn,
       });
+
+      const token = context.getters.getUserToken;
+
+      const sendBoardData = await fetch(
+        `https://kanban-board-91d98-default-rtdb.europe-west1.firebasedatabase.app/${context.getters.getUserId}.json?auth=` +
+          token,
+        {
+          method: "PUT",
+          body: JSON.stringify(context.getters.getBoardData),
+        }
+      );
+
+      const responseBoardData = await sendBoardData.json();
+
+      if (!response.ok) {
+        const error = new Error(
+          responseBoardData.message || "Failed to send data!"
+        );
+        context.commit("clearError", true);
+        throw error;
+      }
     },
     async login(context, payload) {
       const response = await fetch(
@@ -168,16 +190,108 @@ const store = createStore({
       const responseData = await response.json();
 
       if (!response.ok) {
-        const error = new Error(response.message || "Failed to authenticate.");
+        const error = new Error(
+          responseData.message || "Failed to authenticate."
+        );
         context.commit("clearError", true);
         throw error;
       }
-      console.log(responseData);
+
+      const expiresIn = +responseData.expiresIn * 1000;
+      const expirationDate = new Date().getTime() + expiresIn;
+
+      timer = setTimeout(() => {
+        context.commit("logOut");
+      }, expiresIn);
+
+      localStorage.setItem("token", responseData.idToken);
+      localStorage.setItem("userId", responseData.localId);
+      localStorage.setItem("tokenExpiration", expirationDate);
+
       context.commit("setUser", {
         token: responseData.idToken,
         userId: responseData.localId,
         tokenExpiration: responseData.expiresIn,
       });
+
+      context.dispatch("loadBoardData");
+    },
+    async loadBoardData(context) {
+      const token = context.getters.getUserToken;
+
+      if (token === null) {
+        context.commit("setBoardData", {
+          todo: [
+            { id: "todo" },
+            {
+              id: 1,
+              title: "Placeholder",
+              description: "Try it out. Drag me!",
+              deadLine: "13.04.2021",
+            },
+          ],
+          inProgress: [
+            { id: "inProgress" },
+          ],
+          done: [
+            { id: "done" },
+          ],
+        })
+        return;
+      }
+      const response = await fetch(
+        `https://kanban-board-91d98-default-rtdb.europe-west1.firebasedatabase.app/${context.getters.getUserId}.json?auth=` +
+          token
+      );
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        const error = new Error(response.message || "Failed load data.");
+        context.commit("clearError", true);
+        throw error;
+      }
+      context.commit("setBoardData", responseData);
+    },
+    async saveBoardData(context) {
+      const token = context.getters.getUserToken;
+      const response = await fetch(
+        `https://kanban-board-91d98-default-rtdb.europe-west1.firebasedatabase.app/${context.getters.getUserId}.json?auth=` +
+          token,
+        {
+          method: "PUT",
+          body: JSON.stringify(context.getters.getBoardData),
+        }
+      );
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        const error = new Error(responseData.message || "Failed save data.");
+        context.commit("clearError", true);
+        throw error;
+      }
+    },
+    autoLogin(context) {
+      const token = localStorage.getItem("token");
+      const userId = localStorage.getItem("userId");
+      const tokenExpiration = localStorage.getItem("tokenExpiration");
+
+      const expiresIn = +tokenExpiration - new Date().getTime();
+
+      if (expiresIn < 0) {
+        return;
+      }
+
+      timer = setTimeout(() => {
+        context.commit("logOut");
+      }, expiresIn);
+
+      if (token && userId) {
+        context.commit("setUser", {
+          token: token,
+          userId: userId,
+          tokenExpiration: tokenExpiration,
+        });
+      }
     },
   },
   mutations: {
@@ -185,16 +299,29 @@ const store = createStore({
       state.userData.token = payload.token;
       state.userData.id = payload.userId;
       state.userData.tokenExpiration = payload.tokenExpiration;
-      console.log(state.userData)
+    },
+    setBoardData(state, payload) {
+      state.boardData = payload;
     },
     loading(state) {
       state.uiSwitches.isLoading = !state.uiSwitches.isLoading;
     },
+    logOut(state) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("tokenExpiration");
+
+      clearTimeout(timer);
+
+      state.userData.token = null;
+      state.userData.id = null;
+      state.userData.tokenExpiration = null;
+    },
     saveNewTask(state, payload) {
       const path = payload.boardPath;
       if (path !== null) {
-        state[path].push(payload);
-      } else state.todo.push(payload);
+        state.boardData[path].push(payload);
+      } else state.boardData.todo.push(payload);
     },
     creatingSwitch(state) {
       state.uiSwitches.deletingTask = false;
@@ -221,41 +348,41 @@ const store = createStore({
       state.uiSwitches.isDragging = payload;
     },
     deleteTask(state, payload) {
-      const newTodo = state.todo.filter(
+      const newTodo = state.boardData.todo.filter(
         (task) => task["id"].toString() !== payload
       );
-      state.todo = newTodo;
-      const newProgress = state.inProgress.filter(
+      state.boardData.todo = newTodo;
+      const newProgress = state.boardData.inProgress.filter(
         (task) => task["id"].toString() !== payload
       );
-      state.inProgress = newProgress;
-      const newDone = state.done.filter(
+      state.boardData.inProgress = newProgress;
+      const newDone = state.boardData.done.filter(
         (task) => task["id"].toString() !== payload
       );
-      state.done = newDone;
+      state.boardData.done = newDone;
     },
     editTask(state, payload) {
-      state.todo.forEach((element) => {
+      state.boardData.todo.forEach((element) => {
         if (element["id"].toString() === payload.id) {
           state.uiSwitches.creatingTask = !state.uiSwitches.creatingTask;
-          const indexOfElement = state.todo.indexOf(element);
-          state.todo.splice(indexOfElement, 1);
+          const indexOfElement = state.boardData.todo.indexOf(element);
+          state.boardData.todo.splice(indexOfElement, 1);
           state.editedTask = payload;
         }
       });
-      state.inProgress.forEach((element) => {
+      state.boardData.inProgress.forEach((element) => {
         if (element["id"].toString() === payload.id) {
           state.uiSwitches.creatingTask = !state.uiSwitches.creatingTask;
-          const indexOfElement = state.inProgress.indexOf(element);
-          state.inProgress.splice(indexOfElement, 1);
+          const indexOfElement = state.boardData.inProgress.indexOf(element);
+          state.boardData.inProgress.splice(indexOfElement, 1);
           state.editedTask = payload;
         }
       });
-      state.done.forEach((element) => {
+      state.boardData.done.forEach((element) => {
         if (element["id"].toString() === payload.id) {
           state.uiSwitches.creatingTask = !state.uiSwitches.creatingTask;
-          const indexOfElement = state.done.indexOf(element);
-          state.done.splice(indexOfElement, 1);
+          const indexOfElement = state.boardData.done.indexOf(element);
+          state.boardData.done.splice(indexOfElement, 1);
           state.editedTask = payload;
         }
       });
@@ -264,7 +391,7 @@ const store = createStore({
       state.draggedTask = payload;
     },
     dropped(state, target) {
-      state[target].push(state.draggedTask);
+      state.boardData[target].push(state.draggedTask);
     },
     clearError(state, payload) {
       state.uiSwitches.errorOccurrence = payload;

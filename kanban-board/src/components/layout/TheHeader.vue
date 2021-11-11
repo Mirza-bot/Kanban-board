@@ -17,9 +17,34 @@
         >
       </li>
       <li>
-        <standard-button mode="style-accept" @click="toggleLoginWindow"
-          >Log in</standard-button
-        >
+        <transition-group name="buttons">
+          <standard-button
+            key="save"
+            mode="style-accept"
+            @click="saveData"
+            v-show="loginStatus"
+            >Save</standard-button
+          >
+          <standard-button
+            key="log_in"
+            mode="style-accept"
+            @click="toggleLoginWindow"
+            v-if="!loginStatus"
+            >Log in</standard-button
+          >
+          <standard-button
+            mode="style-cancle"
+            key="log_out"
+            @click="logOut"
+            v-else
+            >Log out</standard-button
+          >
+        </transition-group>
+      </li>
+      <li>
+        <transition name="save-notification">
+          <p class="save_notification" v-show="showNotification">Data saved</p>
+        </transition>
       </li>
       <li class="float-left">
         <h2>KANBAN</h2>
@@ -30,7 +55,28 @@
 
 <script>
 export default {
+  data() {
+    return {
+      showNotification: false,
+    };
+  },
   methods: {
+    saveData() {
+      this.$store.dispatch("saveBoardData");
+      this.saveNotification();
+    },
+    saveNotification() {
+      this.showNotification = true;
+      setTimeout(() => {
+        this.showNotification = false;
+      }, 2000);
+    },
+    async logOut() {
+      this.$store.commit("logOut");
+      this.$store.commit("loading");
+      await this.$store.dispatch("loadBoardData");
+      this.$store.commit("loading");
+    },
     toggleCreationWindow() {
       this.$store.commit("creatingSwitch");
     },
@@ -44,6 +90,11 @@ export default {
     },
     toggleLoginWindow() {
       this.$store.commit("autenticatingSwitch");
+    },
+  },
+  computed: {
+    loginStatus() {
+      return this.$store.getters.isLoggedIn;
     },
   },
 };
@@ -79,4 +130,47 @@ li {
 li.float-left {
   float: left;
 }
+
+p.save_notification {
+  float: left;
+  font-size: 1rem;
+}
+
+.save-notification-enter-from {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.save-notification-enter-active {
+  transition: all 0.1s ease-out;
+}
+.save-notification-enter-to {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.save-notification-leave-from {
+  opacity: 1;
+  transform: scale(1);
+}
+.save-notification-leave-active {
+  transition: all 0.1s ease-out;
+}
+.save-notification-leave-to {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.buttons-enter-from {
+  transform: scale(0.6);
+}
+
+.buttons-enter-active {
+  transition: all 0.1s ease-out;
+}
+
+.buttons-enter-to {
+  transform: scale(1);
+}
+
 </style>
