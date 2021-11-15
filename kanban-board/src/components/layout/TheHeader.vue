@@ -33,7 +33,7 @@
             >Log in</standard-button
           >
           <standard-button
-            mode="style-cancle"
+            mode="style-cancel"
             key="log_out"
             @click="logOut"
             v-else

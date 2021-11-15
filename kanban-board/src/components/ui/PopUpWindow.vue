@@ -55,10 +55,10 @@
       >Done</standard-button
     >
     <standard-button
-      mode="style-cancle"
+      mode="style-cancel"
       @click="closeTaskCreation"
       v-show="modeSwitch"
-      >Cancle</standard-button
+      >Cancel</standard-button
     >
   </div>
 </template>

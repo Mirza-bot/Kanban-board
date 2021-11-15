@@ -17,8 +17,8 @@
         <standard-button mode="style-accept" @click="submitForm">{{
           buttonText
         }}</standard-button>
-        <standard-button mode="style-cancle" @click="toggleLoginWindow"
-          >Cancle</standard-button
+        <standard-button mode="style-cancel" @click="toggleLoginWindow"
+          >Cancel</standard-button
         >
       </div>
       <p class="signup_button" @click="changeToSignup">{{ switchText }}</p>

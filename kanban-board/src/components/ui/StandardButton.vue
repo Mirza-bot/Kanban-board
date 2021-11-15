@@ -62,7 +62,7 @@ button:active {
   color: white;
 }
 
-.style-cancle {
+.style-cancel {
   background-color: rgb(11, 80, 121);
   color: white;
   margin: 0 2rem 1rem 2rem;
